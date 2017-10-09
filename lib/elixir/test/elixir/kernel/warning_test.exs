@@ -716,6 +716,21 @@ defmodule Kernel.WarningTest do
       end
       """
     end) == ""
+
+    assert capture_err(fn ->
+      Code.compile_string """
+      with {:first, int1} when is_integer(int1) <- {:first, Integer.gcd(2, 4)},
+           {:second, int2} when is_integer(int2) <- {:second, Integer.gcd(2, 4)} do
+        {:ok, int1 + int2}
+      else
+        error ->
+          case error do
+            {:first, nil} -> {:error, "first number is not integer"}
+            {:second, nil} -> {:error, "second number is not integer"}
+          end
+      end
+      """
+    end) == ""
   after
     purge Sample1
     purge Sample2
